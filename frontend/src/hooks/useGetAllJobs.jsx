@@ -34,9 +34,15 @@ const useGetAllJobs = () => {
                 }
             }
             catch (error) {
-                console.error('Error fetching jobs:', error);
-                if (error.response?.status === 401) {
+                // Handle 404 gracefully - it just means no jobs exist yet
+                if (error.response?.status === 404) {
+                    console.log('No jobs found in database - database may be empty');
+                    dispatch(setAllJobs([]));
+                    dispatch(setOriginalJobs([]));
+                } else if (error.response?.status === 401) {
                     console.log('Authentication required for fetching jobs');
+                } else {
+                    console.error('Error fetching jobs:', error);
                 }
             }
         };

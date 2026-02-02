@@ -77,7 +77,7 @@ export const getAdminJobs = async (req, res) => {
             select: 'name logo'
         });
         if (!jobs || jobs.length === 0) {
-            return res.status(404).json({ message: 'No jobs found', success: false });
+            return res.status(200).json({ message: 'No jobs found', success: true, jobs: [] });
         }
         return res.status(200).json({ message: 'Jobs retrieved successfully', success: true, jobs });
 

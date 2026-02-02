@@ -48,7 +48,13 @@ const JobDescription = () => {
         }
       }
       catch (error) {
-        console.error('Error fetching jobs:', error);
+        if (error.response?.status === 404) {
+          console.log('Job not found or deleted');
+          toast.error('Job not found');
+        } else {
+          console.error('Error fetching job:', error);
+          toast.error('Failed to load job details');
+        }
       }
     };
     fetchSingleJob();

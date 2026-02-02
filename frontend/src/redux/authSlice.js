@@ -15,8 +15,12 @@ const authSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.loading = false;
+        },
+        // Clear all user data (used on logout)
+        clearUserData: (state) => {
+            return { loading: false, user: null };
         }
     }
 });
-export const { setLoading, setUser, logout } = authSlice.actions;
+export const { setLoading, setUser, logout, clearUserData } = authSlice.actions;
 export default authSlice.reducer;

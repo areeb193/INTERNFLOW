@@ -11,11 +11,11 @@ const userSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: Number,
-        required: true,
+        required: false, // CHANGED: Google users won't have phone initially
     },
     password: {
         type: String,
-        required: true,
+        required: false, // CHANGED: Google users won't have password
     },
     role:{
         type: String,

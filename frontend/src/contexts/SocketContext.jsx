@@ -17,7 +17,7 @@ export const SocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-  const socketUrl = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_BASE_URL || 'https://job-portal-mern-stack-project-production.up.railway.app';
+  const socketUrl = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const newSocket = io(socketUrl, {
       withCredentials: true,
       transports: ['websocket', 'polling']

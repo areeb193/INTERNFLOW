@@ -44,7 +44,8 @@ export const getChatByApplication = async (req, res) => {
       .populate('application', 'status');
     
     if (!chat) {
-      return res.status(404).json({ success: false, message: 'Chat not found' });
+      // Return success with null chat instead of 404
+      return res.status(200).json({ success: true, chat: null, message: 'No chat found for this application' });
     }
     
     // Check if user is part of this chat

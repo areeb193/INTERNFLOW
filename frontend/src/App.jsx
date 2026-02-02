@@ -1,21 +1,22 @@
 import './App.css'
-import Navbar from './components/shared/Navbar'
+import { Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Login from './components/auth/Login';
-import Signup from './components/auth/Signup';
-import Home from './components/Home';
-import Jobs from './components/Jobst';
-import Browse from './components/Browse';
-import Profile from './components/Profile';
-import Companies from './components/admin/Companies';
-import JobDescription from './components/JobDescription';
-import JobHunt from './components/JobHunt';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import CompanyCreate from './components/admin/CompanyCreate';
-import CompanySetup from './components/admin/CompanySetup';
-import Adminjobs from './components/admin/Adminjobs';
-import PostJob from './components/admin/PostJob';
-import Applicants from './components/admin/Applicants';
+import LoadingSpinner from './components/LoadingSpinner'
+import Login from './components/auth/Login'
+import Signup from './components/auth/Signup'
+import Home from './components/Home'
+import Jobs from './components/Jobst'
+import Browse from './components/Browse'
+import Profile from './components/Profile'
+import Companies from './components/admin/Companies'
+import JobDescription from './components/JobDescription'
+import JobHunt from './components/JobHunt'
+import ProtectedRoute from './components/auth/ProtectedRoute'
+import CompanyCreate from './components/admin/CompanyCreate'
+import CompanySetup from './components/admin/CompanySetup'
+import Adminjobs from './components/admin/Adminjobs'
+import PostJob from './components/admin/PostJob'
+import Applicants from './components/admin/Applicants'
 
 const appRouter = createBrowserRouter([
   {
@@ -37,12 +38,10 @@ const appRouter = createBrowserRouter([
   {
     path: '/browse',
     element: <ProtectedRoute><Browse/></ProtectedRoute>
-  }
-  ,
+  },
   {
-    path: "/description/:id" ,
-    element: <ProtectedRoute><JobDescription/></ProtectedRoute> 
-
+    path: "/description/:id",
+    element: <ProtectedRoute><JobDescription/></ProtectedRoute>
   },
   {
     path: '/profile',
@@ -55,34 +54,27 @@ const appRouter = createBrowserRouter([
   //admin recruiter kay liya routes
   {
     path: "/admin/companies",
-
-    element : <Companies/>
+    element: <Companies/>
   },
   {
     path: "/admin/companies/create",
-
-    element : <CompanyCreate/>
-  }
-  ,
+    element: <CompanyCreate/>
+  },
   {
     path: "/admin/companies/:id",
-
-    element : <CompanySetup/>
+    element: <CompanySetup/>
   },
   {
     path: "/admin/jobs",
-
-    element : <Adminjobs/>
+    element: <Adminjobs/>
   },
   {
     path: "/admin/jobs/create",
-
-    element : <PostJob/>
+    element: <PostJob/>
   },
   {
     path: "/admin/jobs/:id/applicants",
-
-    element : <Applicants/>
+    element: <Applicants/>
   }
 
 ])

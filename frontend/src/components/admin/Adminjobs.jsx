@@ -21,9 +21,11 @@ const Adminjobs = () => {
       <Navbar />
       <div className="max-w-6xl mx-auto my-10">
         <div className="flex items-center justify-between my-5">
-          <Input className="w-fit" placeholder="Filter by name "v
-           onChange={(e) => setinput(e.target.value)}
-           />
+          <Input 
+            className="w-fit" 
+            placeholder="Filter by name"
+            onChange={(e) => setinput(e.target.value)}
+          />
           <Button onClick={() => navigate("/admin/jobs/create")}>
             New jobs
           </Button>

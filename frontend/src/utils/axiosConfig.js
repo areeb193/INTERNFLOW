@@ -5,7 +5,7 @@ import { logout } from '../redux/authSlice';
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://job-portal-mern-stack-project-production.up.railway.app',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
   withCredentials: true,
   timeout: 10000,
 });
@@ -26,7 +26,10 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.log('Axios interceptor error:', error.response?.status, error.response?.data);
+    // Only log non-404 errors (404 is expected when no data exists)
+    if (error.response?.status !== 404) {
+      console.log('Axios interceptor error:', error.response?.status, error.response?.data);
+    }
     if (error.response?.status === 401) {
       // Clear user data and redirect to login
       store.dispatch(logout());

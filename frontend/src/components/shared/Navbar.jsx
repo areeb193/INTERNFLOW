@@ -13,25 +13,43 @@ import { USER_API_END_POINT } from '../../utils/constant'
 import axiosInstance from '../../utils/axiosConfig'
 import { useDispatch } from 'react-redux'
 import { logout } from '../../redux/authSlice'
+import { clearJobData } from '../../redux/jobSlice'
 import { toast } from 'sonner'
+import { persistor } from '../../redux/store';
 
 const Navbar = () => {
   const { user } = useSelector(store => store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
   const logoutHandler = async () => {
     try {
       const res = await axiosInstance.get(`${USER_API_END_POINT}/logout`)
       if (res.data.success) {
+        // Clear all Redux state
         dispatch(logout());
+        dispatch(clearJobData());
+        
+        // CRITICAL: Purge all persisted data from localStorage
+        await persistor.purge();
+        
+        // Clear localStorage manually as well
+        localStorage.clear();
+        
         navigate('/');
         toast.success(res.data.message);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      
+      // Even if server logout fails, clear local data
       dispatch(logout());
+      dispatch(clearJobData());
+      await persistor.purge();
+      localStorage.clear();
+      
       navigate('/');
-      toast.error('Logged out successfully');
+      toast.success('Logged out successfully');
     }
   }
   return (

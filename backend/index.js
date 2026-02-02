@@ -21,7 +21,7 @@ const _dirname = path.resolve();
 // Socket.IO setup
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://job-portal-mern-stack-project-production.up.railway.app",
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
     credentials: true
   }

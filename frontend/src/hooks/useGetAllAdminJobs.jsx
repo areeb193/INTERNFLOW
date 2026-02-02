@@ -12,24 +12,27 @@ const useGetAllAdminJobs = () => {
         const fetchAllAdminJobs = async () => {
             if (!user) {
                 console.log('User not authenticated, skipping job fetch');
+                dispatch(setAllAdminJobs([]));
                 return;
             }
             
             try {
                 const res = await axiosInstance.get(`${JOB_API_END_POINT}/getadminjobs`);
                 if (res.data.success) {
-                    dispatch(setAllAdminJobs(res.data.jobs));
+                    dispatch(setAllAdminJobs(res.data.jobs || []));
                 }
             }
             catch (error) {
                 console.error('Error fetching jobs:', error);
+                // Clear admin jobs on error
+                dispatch(setAllAdminJobs([]));
                 if (error.response?.status === 401) {
                     console.log('Authentication required for fetching jobs');
                 }
             }
         };
         fetchAllAdminJobs();
-    }, []);
+    }, [user, dispatch]);
 };
 
 export default useGetAllAdminJobs;
