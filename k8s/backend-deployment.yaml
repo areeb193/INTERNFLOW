@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: job-portal
+  labels:
+    app: backend
+    tier: application
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        tier: application
+    spec:
+      containers:
+      - name: backend
+        image: job-portal-backend:v1
+        imagePullPolicy: Never  # Use local image from Minikube
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: MONG_URI
+          valueFrom:
+            secretKeyRef:
+              name: job-portal-secrets
+              key: MONGO_URI
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: job-portal-secrets
+              key: SECRET_KEY
+        - name: CLOUD_NAME
+          valueFrom:
+            secretKeyRef:
+              name: job-portal-secrets
+              key: CLOUD_NAME
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: job-portal-secrets
+              key: API_KEY
+        - name: API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: job-portal-secrets
+              key: API_SECRET
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: job-portal-secrets
+              key: GOOGLE_CLIENT_ID
+        - name: PORT
+          valueFrom:
+            secretKeyRef:
+              name: job-portal-secrets
+              key: PORT
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        # Liveness probe - restart if backend crashes
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        # Readiness probe - only serve traffic when MongoDB is connected
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3

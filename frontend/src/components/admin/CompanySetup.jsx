@@ -11,7 +11,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { setLoading } from "../../redux/authSlice";
 import { useSelector } from "react-redux";
-import { Company } from "../../../../backend/models/company.model";
 import  useGetCompanyById from '../../hooks/useGetCompanyByid'
 const CompanySetup = () => {
   const params = useParams();

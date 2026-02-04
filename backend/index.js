@@ -21,7 +21,7 @@ const _dirname = path.resolve();
 // Socket.IO setup
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:3000"],
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -36,7 +36,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 const corsOptions = {
-  origin:'http://localhost:5173', // Replace with your frontend URL
+  origin: ['http://localhost:5173', 'http://localhost:3000'], // Support both dev and production ports
   credentials: true, // Allow credentials to be sent
 };
 app.use(cors(corsOptions));

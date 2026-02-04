@@ -2,19 +2,71 @@
 
 ## 📋 Table of Contents
 1. [Project Overview](#project-overview)
-2. [Architecture](#architecture)
-3. [Technology Stack](#technology-stack)
-4. [Database Schema](#database-schema)
-5. [Backend Architecture](#backend-architecture)
-6. [Frontend Architecture](#frontend-architecture)
-7. [API Endpoints Documentation](#api-endpoints-documentation)
-8. [Features & Functionality](#features--functionality)
-9. [Authentication Flow](#authentication-flow)
-10. [Real-time Chat Implementation](#real-time-chat-implementation)
-11. [External Job Search Integration](#external-job-search-integration)
-12. [Testing Guide](#testing-guide)
-13. [Deployment Guide](#deployment-guide)
-14. [Known Issues & Fixes](#known-issues--fixes)
+2. [Recent Updates & New Features](#recent-updates--new-features)
+3. [Architecture](#architecture)
+4. [Technology Stack](#technology-stack)
+5. [Database Schema](#database-schema)
+6. [Backend Architecture](#backend-architecture)
+7. [Frontend Architecture](#frontend-architecture)
+8. [Google OAuth Authentication](#-google-oauth-authentication)
+9. [UI/UX Enhancements](#-uiux-enhancements)
+10. [API Endpoints Documentation](#api-endpoints-documentation)
+11. [Features & Functionality](#features--functionality)
+12. [Authentication Flow](#authentication-flow)
+13. [Real-time Chat Implementation](#real-time-chat-implementation)
+14. [External Job Search Integration](#external-job-search-integration)
+15. [Testing Guide](#testing-guide)
+16. [Deployment Guide](#deployment-guide)
+17. [Known Issues & Fixes](#known-issues--fixes)
+
+---
+
+## 🆕 Recent Updates & New Features
+
+### Version 1.1.0 (February 2026)
+
+#### 🔐 Authentication Enhancements
+- **Google OAuth 2.0 Integration**
+  - Sign in with Google functionality
+  - Automatic user creation for new Google users
+  - Profile picture sync from Google accounts
+  - No password required for OAuth users
+  - Libraries: `@react-oauth/google`, `google-auth-library`
+
+#### 🎨 UI/UX Improvements
+- **LoadingSpinner Component**
+  - Custom branded loading animation
+  - Multi-layer animations with brand colors
+  - Used during app initialization and data loading
+  
+- **ErrorBoundary Component**
+  - Graceful error handling
+  - Prevents app crashes
+  - User-friendly error messages with recovery options
+
+- **Enhanced Animations**
+  - Integration with anime.js for smooth transitions
+  - Improved loading states across components
+
+#### 🔌 Architecture Updates
+- **SocketContext Provider**
+  - Centralized WebSocket management
+  - Global Socket.IO connection handling
+  - Connection state tracking
+  - Improved chat room management
+
+#### 📦 Dependency Updates
+- React upgraded to v19
+- React Router DOM upgraded to v7
+- Tailwind CSS with Vite plugin
+- Updated all shadcn/ui components
+- Latest Socket.IO client
+
+#### 🛠️ Developer Experience
+- Improved error logging
+- Better TypeScript support setup
+- Enhanced development environment configuration
+- Minikube configured for local Kubernetes testing
 
 ---
 
@@ -24,12 +76,16 @@ A comprehensive **Job Portal** platform built using the MERN stack that connects
 
 ### Key Features:
 - **Dual User Roles**: Student and Recruiter
+- **Google OAuth Authentication**: Sign in with Google for quick access
 - **Job Management**: Post, browse, and apply for jobs
 - **Application Tracking**: Track application status (applied, interviewed, offered, rejected)
 - **Real-time Chat**: Socket.IO powered communication between students and recruiters
 - **External Job Search**: Integration with JSearch RapidAPI for external job listings
 - **Profile Management**: User profiles with resume upload and skill management
 - **Company Management**: Recruiters can manage multiple companies
+- **Error Handling**: ErrorBoundary component for graceful error handling
+- **Loading States**: Custom LoadingSpinner for better UX
+- **Socket Context**: Centralized WebSocket management
 
 ---
 
@@ -81,19 +137,23 @@ A comprehensive **Job Portal** platform built using the MERN stack that connects
 - **Runtime**: Node.js (v14+)
 - **Framework**: Express.js (v5.1.0)
 - **Database**: MongoDB (Mongoose ODM v8.16.4)
-- **Authentication**: JWT (jsonwebtoken v9.0.2) + bcrypt (v6.0.0)
+- **Authentication**: JWT (jsonwebtoken v9.0.2) + bcrypt (v6.0.0) + Google OAuth 2.0
+- **OAuth Library**: google-auth-library (v10.5.0)
 - **Real-time Communication**: Socket.IO (v4.8.1)
 - **File Upload**: Multer (v2.0.2) + Cloudinary (v2.7.0)
 - **HTTP Client**: Axios (v1.11.0)
 
 ### Frontend
-- **Framework**: React 18 + Vite
+- **Framework**: React 19 + Vite
 - **State Management**: Redux Toolkit + Redux Persist
-- **Routing**: React Router DOM v6
+- **Routing**: React Router DOM v7
 - **UI Framework**: Tailwind CSS + shadcn/ui components
 - **HTTP Client**: Axios with interceptors
 - **Real-time**: Socket.IO Client
 - **Notifications**: Sonner (Toast notifications)
+- **Authentication**: @react-oauth/google (v0.13.4)
+- **Error Handling**: React ErrorBoundary
+- **Animations**: anime.js (v4.1.2)
 
 ### Development Tools
 - **Development Server**: Nodemon (v3.1.10)
@@ -108,8 +168,8 @@ A comprehensive **Job Portal** platform built using the MERN stack that connects
 {
   fullname: String (required),
   email: String (required, unique),
-  phoneNumber: Number (required),
-  password: String (required, hashed),
+  phoneNumber: Number (optional - not required for Google OAuth users),
+  password: String (optional - not required for Google OAuth users),
   role: String (enum: ['student', 'recruiter'], required),
   profile: {
     bio: String,
@@ -117,7 +177,7 @@ A comprehensive **Job Portal** platform built using the MERN stack that connects
     resume: [String], // Cloudinary URLs
     resumeOriginalName: [String],
     company: ObjectId (ref: Company),
-    profilePicture: String
+    profilePicture: String (default: "" - can be set from Google profile picture)
   },
   timestamps: true
 }
@@ -276,6 +336,7 @@ backend/
 #### User Controller
 - **register**: Creates new user account with optional profile picture
 - **login**: Authenticates user with role-based access
+- **googleLogin**: Authenticates users via Google OAuth 2.0 (NEW)
 - **logout**: Clears authentication cookie
 - **updateProfile**: Updates user profile including resume upload
 
@@ -337,9 +398,12 @@ frontend/src/
 │   │   └── ChatPopup.jsx
 │   ├── shared/
 │   │   └── Navbar.jsx
-│   └── ui/                  # shadcn/ui components
+│   ├── ui/                  # shadcn/ui components
+│   ├── ErrorBoundary.jsx    # Error boundary for graceful error handling
+│   ├── LoadingSpinner.jsx   # Custom loading component
+│   └── ... (other components)
 ├── contexts/
-│   └── SocketContext.jsx    # Socket.IO context
+│   └── SocketContext.jsx    # Socket.IO context provider
 ├── hooks/                   # Custom React hooks
 │   ├── useGetAllJobs.jsx
 │   ├── useGetAppliedjobs.jsx
@@ -427,7 +491,171 @@ State: {
 
 ---
 
-## 📡 API Endpoints Documentation
+## � Google OAuth Authentication
+
+### Overview
+The application now supports **Google OAuth 2.0** authentication, allowing users to sign in quickly using their Google accounts. This feature is implemented on both frontend and backend.
+
+### Implementation Details
+
+#### Backend Implementation
+- **Library**: `google-auth-library` (v10.5.0)
+- **Endpoint**: `POST /api/v1/user/google`
+- **Client ID**: Configured in environment variables
+
+**googleLogin Controller** (`user.controller.js`):
+```javascript
+export const googleLogin = async (req, res) => {
+  // 1. Verify Google ID token
+  // 2. Extract user info (email, name, picture)
+  // 3. Create new user or fetch existing user
+  // 4. Set profile picture from Google if new user
+  // 5. Generate JWT token
+  // 6. Return user data with cookie
+}
+```
+
+**Key Features**:
+- Automatic user creation on first Google login
+- Profile picture sync from Google account
+- Role selection (Student/Recruiter) before sign-in
+- Fallback to regular email/password auth
+- No password required for Google users
+- Phone number optional for Google users
+
+#### Frontend Implementation
+- **Library**: `@react-oauth/google` (v0.13.4)
+- **Provider**: `GoogleOAuthProvider` wraps entire app
+- **Component**: `GoogleLogin` button in Login.jsx
+
+**Login Flow**:
+1. User selects role (Student/Recruiter)
+2. Clicks "Sign in with Google"
+3. Google popup authentication
+4. ID token sent to backend
+5. User redirected to home page
+
+**Code Example** (`Login.jsx`):
+```javascript
+<GoogleOAuthProvider clientId="YOUR_CLIENT_ID">
+  <GoogleLogin
+    onSuccess={handleGoogleSuccess}
+    onError={() => toast.error("Google Login Failed")}
+    theme="outline"
+  />
+</GoogleOAuthProvider>
+```
+
+### Environment Variables
+```bash
+# Backend (.env)
+GOOGLE_CLIENT_ID=your-google-client-id
+
+# Frontend (.env)
+# Not needed - client ID embedded in code
+```
+
+### User Experience
+- ✅ Faster authentication (no password required)
+- ✅ Automatic profile picture from Google
+- ✅ One-click sign-in
+- ⚠️ Users must select role before Google sign-in
+- ℹ️ Email must match between Google and manual signup
+
+---
+
+## 🎨 UI/UX Enhancements
+
+### 1. LoadingSpinner Component
+**Location**: `frontend/src/components/LoadingSpinner.jsx`
+
+A custom, branded loading spinner with:
+- Animated circles with brand colors (#6A38C2 and #F83002)
+- Gradient text and pulsing dots
+- Used during app initialization (PersistGate)
+- Smooth animations and modern design
+
+**Features**:
+- Multi-layered animation (rotating circles, spinning icon, pulsing dots)
+- Gradient color scheme matching brand identity
+- Responsive design
+- Informative loading text
+
+**Usage**:
+```jsx
+<PersistGate loading={<LoadingSpinner />} persistor={persistor}>
+  <App />
+</PersistGate>
+```
+
+### 2. ErrorBoundary Component
+**Location**: `frontend/src/components/ErrorBoundary.jsx`
+
+React class component for catching JavaScript errors:
+- Catches errors anywhere in component tree
+- Displays fallback UI with reload option
+- Logs errors to console for debugging
+- Prevents entire app crash
+
+**Features**:
+- Graceful error handling
+- User-friendly error message
+- Quick recovery with page reload
+- Error logging for debugging
+
+**Usage**:
+```jsx
+<ErrorBoundary>
+  <YourApp />
+</ErrorBoundary>
+```
+
+**Error Display**:
+- Clean, centered layout
+- Clear error message
+- Reload button for recovery
+- Prevents blank screen errors
+
+### 3. SocketContext Provider
+**Location**: `frontend/src/contexts/SocketContext.jsx`
+
+Centralized WebSocket management using React Context:
+
+**Features**:
+- Global Socket.IO connection
+- Connection state management
+- Room join/leave utilities
+- Automatic reconnection
+- Error handling
+
+**Exported Functions**:
+```javascript
+- useSocket() // Access socket instance and connection state
+- joinChat(applicationId) // Join specific chat room
+- leaveChat(applicationId) // Leave chat room
+- sendMessage(data) // Send chat message
+```
+
+**Connection Handling**:
+- Auto-connects on mount
+- Logs connection status
+- Handles disconnections
+- Supports both WebSocket and polling
+
+**Usage**:
+```jsx
+const { socket, isConnected, joinChat, sendMessage } = useSocket();
+
+useEffect(() => {
+  if (isConnected) {
+    joinChat(applicationId);
+  }
+}, [isConnected, applicationId]);
+```
+
+---
+
+## �📡 API Endpoints Documentation
 
 ### Base URL
 - **Development**: `http://localhost:8000/api/v1`
@@ -479,7 +707,34 @@ Response (200):
 }
 ```
 
-#### 3. Logout User
+#### 3. Google OAuth Login (NEW)
+```
+POST /user/google
+Content-Type: application/json
+
+Body:
+{
+  idToken: String (from Google),
+  role: String (student|recruiter)
+}
+
+Response (200):
+{
+  message: "Welcome [username]",
+  success: true,
+  user: {
+    _id, fullname, email, phoneNumber, role, profile
+  }
+}
+
+Notes:
+- Creates new user if email doesn't exist
+- Sets profile picture from Google account
+- No password required for Google users
+- phoneNumber is optional
+```
+
+#### 4. Logout User
 ```
 GET /user/logout
 
@@ -490,7 +745,7 @@ Response (200):
 }
 ```
 
-#### 4. Update Profile
+#### 5. Update Profile
 ```
 POST /user/profile/update
 Authorization: Required
@@ -863,10 +1118,16 @@ Response (200):
 ### 1. User Authentication & Authorization
 - **Registration**: Email-based with role selection (Student/Recruiter)
 - **Login**: JWT-based authentication with httpOnly cookies
+- **Google OAuth**: Sign in with Google (NEW)
+  - Automatic account creation
+  - Profile picture sync
+  - No password required
+  - Role selection before sign-in
 - **Password Security**: bcrypt hashing (salt rounds: 10)
 - **Token Expiry**: 7 days
 - **Profile Pictures**: Cloudinary integration during signup
 - **Protected Routes**: Middleware verification for secure endpoints
+- **Session Persistence**: Redux Persist for maintaining user sessions
 
 ### 2. Job Management
 - **Job Posting** (Recruiter):
@@ -1364,6 +1625,86 @@ socket.on('new-message', (msg) => {
 
 ## 🚀 Deployment Guide
 
+### Local Development Setup
+
+#### Prerequisites
+- Node.js (v14+)
+- MongoDB (local or Atlas)
+- Google OAuth Client ID (for authentication)
+- Cloudinary Account
+- Minikube (optional - for Kubernetes testing)
+
+#### Environment Configuration
+
+**Backend (.env)**:
+```bash
+# Database
+MONG_URI=mongodb://localhost:27017/jobportal
+# OR MongoDB Atlas
+MONG_URI=mongodb+srv://username:password@cluster.mongodb.net/jobportal
+
+# Server
+PORT=8000
+SECRET_KEY=your_secret_key
+
+# Cloudinary
+CLOUD_NAME=your_cloudinary_name
+API_KEY=your_cloudinary_api_key
+API_SECRET=your_cloudinary_api_secret
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+```
+
+**Frontend (.env)**:
+```bash
+VITE_API_BASE_URL=http://localhost:8000
+VITE_SOCKET_URL=http://localhost:8000
+```
+
+#### Installation Steps
+
+```bash
+# 1. Clone repository
+git clone <repository-url>
+cd job-portal
+
+# 2. Install backend dependencies
+cd backend
+npm install
+
+# 3. Install frontend dependencies
+cd ../frontend
+npm install
+
+# 4. Start MongoDB (if using local)
+mongod
+
+# 5. Start backend server
+cd backend
+npm run dev
+# Server runs on http://localhost:8000
+
+# 6. Start frontend (new terminal)
+cd frontend
+npm run dev
+# App runs on http://localhost:5173
+```
+
+#### Google OAuth Setup
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials
+5. Add authorized JavaScript origins:
+   - `http://localhost:5173` (frontend)
+   - `http://localhost:8000` (backend)
+6. Add authorized redirect URIs:
+   - `http://localhost:5173`
+7. Copy Client ID to both `.env` files
+
+---
+
 ### Backend Deployment (Render / Railway / Heroku)
 
 #### 1. Prepare Backend
@@ -1384,8 +1725,11 @@ SECRET_KEY=your_production_secret
 CLOUD_NAME=your_cloudinary_name
 API_KEY=your_cloudinary_key
 API_SECRET=your_cloudinary_secret
+GOOGLE_CLIENT_ID=your_google_client_id
 NODE_ENV=production
 ```
+
+**Important**: Update Google OAuth authorized origins to include production URL
 
 #### 3. Deploy to Render
 ```bash
@@ -1599,6 +1943,94 @@ VITE_API_BASE_URL=http://localhost:8000
 3. Test message emission: Check network tab for socket.io requests
 4. Verify MongoDB: Check chat.messages array is updating
 
+### Issue 11: Google OAuth Login Failed (NEW)
+**Error**: `Google Login Failed` / `Authentication failed`
+
+**Causes**:
+- Invalid Google Client ID
+- User didn't select role before sign-in
+- CORS issues with Google OAuth
+- Network/firewall blocking Google services
+
+**Fix**:
+1. Verify `GOOGLE_CLIENT_ID` is correct in both `.env` files
+2. Ensure user selects role (Student/Recruiter) before clicking Google sign-in
+3. Check browser console for specific error messages
+4. Verify authorized origins in Google Cloud Console:
+   ```
+   http://localhost:5173
+   http://localhost:8000
+   ```
+5. Clear browser cache and cookies
+6. Try incognito/private browsing mode
+
+**Backend Debug**:
+```javascript
+// Check if token verification is working
+console.log('ID Token:', idToken);
+console.log('Verified payload:', payload);
+```
+
+### Issue 12: LoadingSpinner Not Displaying
+**Issue**: White screen during app initialization
+
+**Causes**:
+- PersistGate not configured correctly
+- LoadingSpinner import error
+
+**Fix**:
+1. Verify `main.jsx` has correct setup:
+```javascript
+<PersistGate loading={<LoadingSpinner />} persistor={persistor}>
+  <App />
+</PersistGate>
+```
+2. Check LoadingSpinner component exists
+3. Verify no import errors in console
+
+### Issue 13: ErrorBoundary Not Catching Errors
+**Issue**: App still crashes on errors
+
+**Causes**:
+- ErrorBoundary not wrapping components
+- Error in ErrorBoundary itself
+- Event handler errors (not caught by boundaries)
+
+**Fix**:
+1. Wrap app or specific components:
+```jsx
+<ErrorBoundary>
+  <YourComponent />
+</ErrorBoundary>
+```
+2. For event handlers, use try-catch:
+```javascript
+const handleClick = async () => {
+  try {
+    // Your code
+  } catch (error) {
+    console.error(error);
+    toast.error('Something went wrong');
+  }
+};
+```
+
+### Issue 14: Socket Connection State Not Updating
+**Error**: `isConnected` always false
+
+**Causes**:
+- SocketContext not providing correct state
+- Component not using useSocket hook
+
+**Fix**:
+1. Ensure component uses the hook:
+```javascript
+const { socket, isConnected } = useSocket();
+```
+2. Check SocketContext.jsx connection listeners
+3. Verify backend Socket.IO server is running
+4. Check CORS configuration for WebSocket
+
 ---
 
 ## 📊 Performance Optimization
@@ -1666,6 +2098,7 @@ const debouncedSearch = debounce(searchFunction, 500);
 
 ### ✅ Completed Features
 - User authentication (Student & Recruiter)
+- **Google OAuth authentication** (NEW)
 - Job posting and management
 - Company management
 - Application workflow
@@ -1675,12 +2108,17 @@ const debouncedSearch = debounce(searchFunction, 500);
 - Redux state management with persistence
 - Socket.IO integration
 - Protected routes
+- **ErrorBoundary for error handling** (NEW)
+- **Custom LoadingSpinner component** (NEW)
+- **SocketContext for centralized WebSocket management** (NEW)
+- **Enhanced UI/UX with animations** (NEW)
 
 ### 🧪 Test Results
 
 #### Backend APIs: ✅ All Working
 - User registration: ✅
 - User login: ✅
+- **Google OAuth login**: ✅ (NEW)
 - Profile update: ✅
 - Company CRUD: ✅
 - Job CRUD: ✅
@@ -1690,15 +2128,19 @@ const debouncedSearch = debounce(searchFunction, 500);
 
 #### Frontend Components: ✅ All Working
 - Authentication flows: ✅
+- **Google OAuth integration**: ✅ (NEW)
 - Student dashboard: ✅
 - Recruiter dashboard: ✅
 - Job browsing: ✅
 - Application tracking: ✅
 - Chat interface: ✅
 - Profile management: ✅
+- **Error handling (ErrorBoundary)**: ✅ (NEW)
+- **Loading states (LoadingSpinner)**: ✅ (NEW)
 
 #### Real-time Features: ✅ Working
 - Socket.IO connection: ✅
+- **SocketContext management**: ✅ (NEW)
 - Message delivery: ✅
 - Unread counts: ✅
 - Room management: ✅
@@ -1709,6 +2151,11 @@ const debouncedSearch = debounce(searchFunction, 500);
 3. ✅ Socket.IO CORS (updated to localhost)
 4. ✅ Axios base URL (removed /api/v1 duplication)
 5. ✅ Environment variables (created frontend/.env)
+6. ✅ Google OAuth integration (NEW)
+7. ✅ Error boundary implementation (NEW)
+8. ✅ Loading states and UX improvements (NEW)
+9. ✅ Socket connection management with Context (NEW)
+10. ✅ React and dependencies updated to latest versions (NEW)
 
 ### 📈 Recommendations for Future Enhancements
 1. Add email verification
@@ -1721,6 +2168,11 @@ const debouncedSearch = debounce(searchFunction, 500);
 8. Resume parser integration
 9. Job recommendations based on skills
 10. Multi-language support
+11. **Kubernetes deployment** (Minikube configured)
+12. **CI/CD pipeline integration**
+13. **Docker containerization**
+14. **Microservices architecture**
+15. **Progressive Web App (PWA) features**
 
 ---
 
@@ -1763,7 +2215,7 @@ This project is for educational purposes. Feel free to use and modify as needed.
 
 ---
 
-**Last Updated**: January 4, 2026  
-**Version**: 1.0.0  
+**Last Updated**: February 2, 2026  
+**Version**: 1.1.0  
 **Status**: ✅ Production Ready (Localhost)
 
