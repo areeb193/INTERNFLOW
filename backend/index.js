@@ -11,12 +11,9 @@ import companyRoutes from './routes/company.route.js';
 import applicationRoutes from './routes/application.route.js';
 import jobHuntRoutes from './routes/jobHunt.route.js';
 import chatRoutes from './routes/chat.route.js';
-import path from 'path';
 dotenv.config({});
 const app = express();
 const httpServer = createServer(app);
-
-const _dirname = path.resolve();
 
 // Socket.IO setup
 const io = new Server(httpServer, {
@@ -82,15 +79,8 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 8000;
 
-// Serve built frontend assets (only in local development)
-// In production, frontend is deployed separately on Vercel
-if (process.env.NODE_ENV !== 'production') {
-  app.use(express.static(path.join(_dirname, "/frontend/dist")));
-  // Express 5-safe catch-all: serve SPA for non-API routes
-  app.get(/^\/(?!api\/).*/, (req, res) => {
-    res.sendFile(path.join(_dirname, 'frontend', 'dist', 'index.html'));
-  });
-}
+// Frontend is deployed separately on Vercel
+// Backend only serves API endpoints
 
 // API routes
 app.use('/api/v1/user', userRoutes);
