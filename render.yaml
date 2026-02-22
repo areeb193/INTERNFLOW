@@ -1,0 +1,26 @@
+services:
+  # Backend Service
+  - type: web
+    name: job-portal-backend
+    runtime: node
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: NODE_ENV
+        value: production
+      - key: MONG_URI
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CLOUD_NAME
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: API_SECRET
+        sync: false

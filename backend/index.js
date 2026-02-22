@@ -21,7 +21,12 @@ const _dirname = path.resolve();
 // Socket.IO setup
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:3000"],
+    origin: [
+      "http://localhost:5173", 
+      "http://localhost:3000",
+      "https://jobportal-xi-two.vercel.app",
+      "https://jobportal-oysq599u5-m-areebs-projects.vercel.app"
+    ],
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -36,8 +41,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:3000'], // Support both dev and production ports
-  credentials: true, // Allow credentials to be sent
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:3000',
+    'https://jobportal-xi-two.vercel.app',
+    'https://jobportal-oysq599u5-m-areebs-projects.vercel.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use(cors(corsOptions));
 
