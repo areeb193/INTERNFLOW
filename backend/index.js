@@ -22,7 +22,8 @@ const io = new Server(httpServer, {
       "http://localhost:5173", 
       "http://localhost:3000",
       "https://jobportal-xi-two.vercel.app",
-      "https://jobportal-oysq599u5-m-areebs-projects.vercel.app"
+      "https://jobportal-oysq599u5-m-areebs-projects.vercel.app",
+      "https://blissful-gratitude-production-e30b.up.railway.app"
     ],
     methods: ["GET", "POST"],
     credentials: true
@@ -42,7 +43,8 @@ const corsOptions = {
     'http://localhost:5173', 
     'http://localhost:3000',
     'https://jobportal-xi-two.vercel.app',
-    'https://jobportal-oysq599u5-m-areebs-projects.vercel.app'
+    'https://jobportal-oysq599u5-m-areebs-projects.vercel.app',
+    'https://blissful-gratitude-production-e30b.up.railway.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
