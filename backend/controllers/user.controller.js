@@ -96,10 +96,16 @@ export const login = async (req, res) => {
             role: user.role,
             profile: user.profile,
         }
-        return res.status(200).cookie("token",token,{maxAge:1*24*60*60*1000, httpOnly: true, secure: process.env.NODE_ENV === 'production'}).json({
+        return res.status(200).cookie("token",token,{
+            maxAge: 1*24*60*60*1000, 
+            httpOnly: true, 
+            secure: true,
+            sameSite: 'none'
+        }).json({
             message: `Login successful ${user.fullname}`,
             user,
-            success: true,})
+            success: true
+        })
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error', success: false });
@@ -109,7 +115,7 @@ export const login = async (req, res) => {
 
     export const logout = async (req, res) => {
         try {
-            return res.status(200).cookie("token", "", { maxAge: 0, httpOnly: true, secure: 'strict' }).json({
+            return res.status(200).cookie("token", "", { maxAge: 0, httpOnly: true, secure: true, sameSite: 'none' }).json({
                 message: 'Logout successful',
                 success: true,
                 });
@@ -277,7 +283,8 @@ export const googleLogin = async (req, res) => {
         return res.status(200).cookie("token", token, { 
             maxAge: 7 * 24 * 60 * 60 * 1000, 
             httpOnly: true, 
-            secure: process.env.NODE_ENV === 'production'
+            secure: true,
+            sameSite: 'none'
         }).json({
             message: `Welcome ${userResponse.fullname}`,
             user: userResponse,
