@@ -11,7 +11,7 @@ This guide walks you through deploying the Job Portal MERN application to Miniku
 ## Quick Start (Automated)
 
 ### Windows PowerShell
-```powershell
+```powershel
 # Navigate to project directory
 cd "C:\Users\DELLL\Desktop\job portal"
 
