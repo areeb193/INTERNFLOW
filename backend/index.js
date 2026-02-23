@@ -82,6 +82,24 @@ const PORT = process.env.PORT || 8000;
 // Frontend is deployed separately on Vercel
 // Backend only serves API endpoints
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Job Portal API is running',
+    version: '1.0.0',
+    status: 'active',
+    endpoints: {
+      user: '/api/v1/user',
+      company: '/api/v1/company',
+      job: '/api/v1/job',
+      application: '/api/v1/application',
+      jobHunt: '/api/v1/job-hunt',
+      chat: '/api/v1/chat',
+      health: '/api/health'
+    }
+  });
+});
+
 // API routes
 app.use('/api/v1/user', userRoutes);
 //http://localhost:8000/api/v1/user/register
@@ -98,9 +116,40 @@ app.use('/api/v1/chat', chatRoutes);
 //http://localhost:8000/api/v1/application/status/:id/update
 //http://localhost:8000/api/v1/job/get
 
+// 404 handler for unmatched routes
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+    availableRoutes: [
+      '/api/v1/user',
+      '/api/v1/company',
+      '/api/v1/job',
+      '/api/v1/application',
+      '/api/v1/job-hunt',
+      '/api/v1/chat'
+    ]
+  });
+});
+
+// Error handler middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error'
+  });
+});
+
 // Note: static + SPA catch-all are registered above to ensure '/' serves the frontend
 
 httpServer.listen(PORT, () => {
     connectDB();
-  
+    console.log(`✅ Server is running on port ${PORT}`);
+    console.log(`📍 Server URL: http://localhost:${PORT}`);
+    console.log(`🔗 API Base: http://localhost:${PORT}/api/v1`);
+    console.log(`💬 Socket.IO is ready for connections`);
 });
+
+// Make io available to other modules if needed
+export { io };
