@@ -15,29 +15,18 @@ dotenv.config({});
 const app = express();
 const httpServer = createServer(app);
 
-// Socket.IO setup
+// Socket.IO setup with Railway-compatible configuration
 const io = new Server(httpServer, {
   cors: {
-    origin: function (origin, callback) {
-      const allowedOrigins = [
-        "http://localhost:5173", 
-        "http://localhost:3000",
-        "https://jobportal-xi-two.vercel.app",
-        "https://blissful-gratitude-production-e30b.up.railway.app"
-      ];
-      
-      // Allow all vercel.app domains
-      const isVercelDomain = origin && origin.includes('vercel.app');
-      
-      if (!origin || allowedOrigins.includes(origin) || isVercelDomain) {
-        callback(null, true);
-      } else {
-        callback(null, false);
-      }
-    },
-    methods: ["GET", "POST"],
-    credentials: true
-  }
+    origin: true, // Allow all origins temporarily for debugging
+    credentials: true,
+    methods: ["GET", "POST"]
+  },
+  transports: ['websocket', 'polling'], // Fallback to polling if websocket fails
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  upgradeTimeout: 30000,
+  allowUpgrades: true
 });
 
 // Health check endpoint (keep a simple backend response under /api)
@@ -49,38 +38,28 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Dynamic CORS configuration to handle all Vercel preview deployments
+// Dynamic CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:5173', 
-      'http://localhost:3000',
-      'https://jobportal-xi-two.vercel.app',
-      'https://blissful-gratitude-production-e30b.up.railway.app'
-    ];
-    
-    // Allow all vercel.app domains
-    const isVercelDomain = origin && origin.includes('vercel.app');
-    
-    if (!origin || allowedOrigins.includes(origin) || isVercelDomain) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    // Allow all origins for now (Railway + Vercel compatibility)
+    callback(null, true);
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Set-Cookie'],
+  maxAge: 86400 // 24 hours
 };
 app.use(cors(corsOptions));
 
-// Socket.IO connection handling
+// Socket.IO connection handling with error handling
 io.on('connection', (socket) => {
-  
+  console.log('✅ Socket.IO client connected:', socket.id);
   
   // Join chat room based on application
   socket.on('join-chat', (applicationId) => {
     socket.join(`chat-${applicationId}`);
+    console.log(`User ${socket.id} joined chat-${applicationId}`);
   });
   
   // Handle incoming messages
@@ -96,8 +75,12 @@ io.on('connection', (socket) => {
     });
   });
   
-  socket.on('disconnect', () => {
-    
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+  });
+  
+  socket.on('disconnect', (reason) => {
+    console.log('❌ Socket.IO client disconnected:', socket.id, 'Reason:', reason);
   });
 });
 
